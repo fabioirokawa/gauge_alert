@@ -21,7 +21,7 @@ def dist_2_pts(x1, y1, x2, y2):
     return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
-def calibrate_gauge(gauge_number, file_type):
+def calibrate_gauge(gauge_number, file_type, file_img, path):
     """
     This function should be run using a test image in order to calibrate the range available to the dial as well as the
     units.  It works by first finding the center point and radius of the gauge.  Then it draws lines at hard coded intervals
@@ -32,16 +32,15 @@ def calibrate_gauge(gauge_number, file_type):
     It will return the min value with angle in degrees (as a tuple), the max value with angle in degrees (as a tuple),
     and the units (as a string).
     """
-    print(settings.file_img)
     #imagem a ser adquirida
-    img = cv2.imread(settings.full_path)
+    img = cv2.imread(path + file_img)
     height, width = img.shape[:2]
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # convert to gray
     # gray = cv2.GaussianBlur(gray, (5, 5), 0)
     # gray = cv2.medianBlur(gray, 5)
 
     # for testing, output gray image
-    cv2.imwrite(settings.path + "gray_" + settings.file_img, gray)
+    cv2.imwrite(path + "gray_" + file_img, gray)
 
     # detect circles
     # restricting the search from 35-48% of the possible radii gives fairly good results across different samples.  Remember that
@@ -130,7 +129,7 @@ def calibrate_gauge(gauge_number, file_type):
             cv2.LINE_AA,
         )
 
-    cv2.imwrite(settings.path + "calib_" + settings.file_img, img)
+    cv2.imwrite(path + "calib_" + file_img, img)
 
     # get user input on min, max, values, and units
     #print("gauge number: %s" % gauge_number)
@@ -151,7 +150,7 @@ def calibrate_gauge(gauge_number, file_type):
 
 
 def get_current_value(
-    img, min_angle, max_angle, min_value, max_value, x, y, r, gauge_number, file_type
+    img, min_angle, max_angle, min_value, max_value, x, y, r, gauge_number, file_type, path, file_img
 ):
 
     # for testing purposes
@@ -248,7 +247,7 @@ def get_current_value(
 
     # for testing purposes, show the line overlayed on the original image
     # cv2.imwrite('gauge-1-test.jpg', img)
-    cv2.imwrite(settings.path + "lines_" + settings.file_img, img)
+    cv2.imwrite(path + "lines_" + file_img, img)
 
     # find the farthest point from the center to be what is used to determine the angle
     dist_pt_0 = dist_2_pts(x, y, x1, y1)
@@ -296,18 +295,20 @@ def get_current_value(
     return new_value
 
 
-def main():
+def main(file_img, path):
     gauge_number = 999
     file_type = "png"
     # name the calibration image of your gauge 'gauge-#.jpg', for example 'gauge-5.jpg'.  It's written this way so you can easily try multiple images
     min_angle, max_angle, min_value, max_value, units, x, y, r = calibrate_gauge(
         gauge_number, 
-        file_type
+        file_type,
+        file_img,
+        path
     )
 
     # feed an image (or frame) to get the current value, based on the calibration, by default uses same image as calibration
-    img = cv2.imread(settings.full_path)
-    val = get_current_value(img, min_angle, max_angle, min_value, max_value, x, y, r, gauge_number, file_type)
+    img = cv2.imread(path + file_img)
+    val = get_current_value(img, min_angle, max_angle, min_value, max_value, x, y, r, gauge_number, file_type, path, file_img)
     print("Current reading: %s %s" % (val, units))
 
 if __name__ == "__main__":
