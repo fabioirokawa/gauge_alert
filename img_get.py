@@ -8,10 +8,11 @@ count_img = {}
 img_number = 0
 file_name = "contador.txt"
 
-def get_image():
+def get_image(path):
+
 
 	# define a video capture object
-	vid = cv2.VideoCapture(0)
+	vid = cv2.VideoCapture(1)
 
 		
 	# Capture the video frame
@@ -24,10 +25,9 @@ def get_image():
 		today = datetime.now()
 		time = today.strftime("%d%m%Y_%H%M%S")
 		file_img = "gauge_%s.png" % time
-		settings.file_img = file_img
-		settings.update()
-		print(settings.full_path + "AKSDKADSKAAK")
-		cv2.imwrite(settings.full_path, frame)
+		fullPath = path + file_img
+		#print(settings.full_path)
+		cv2.imwrite(fullPath, frame)
 		
 	# the 'q' button is set as the
 	# quitting button you may use any
@@ -41,15 +41,6 @@ def get_image():
 		print("Nada")
 
 	return file_img
-
-#le / guarda contador de fotos tiradas
-def file_read():
-	with open(file_name, "r") as f:
-					try:
-						contador = int(f.read())
-						print(contador)
-					finally:
-						f.close()
 		
 if __name__ == "__main__":
 	get_image()
